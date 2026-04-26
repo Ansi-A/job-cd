@@ -74,12 +74,13 @@ class ExtractorStep(PipelineStep):
         
         company = self.extractor.extract_company(deployment.job)
         
-        if company:
+        # Check if company exists and has both domain and job_title
+        if company and company.domain and company.job_title:
             deployment.company = company
             deployment.status = DeploymentStatus.EXTRACTED
             deployment.job.title = company.job_title
         else:
-            logging.error(f"🚨 ExtractorStep failed for Job {deployment.job.id}. Halting branch.")
+            logging.error(f"🚨 ExtractorStep failed to parse title/domain for Job {deployment.job.id}.")
             deployment.status = DeploymentStatus.FAILED
             
         return deployment
@@ -88,7 +89,7 @@ class ExtractorStep(PipelineStep):
         if deployment.status == DeploymentStatus.EXTRACTED:
             return f"🎉 Extracted company details for Job: {deployment.job.id}"
         elif deployment.status == DeploymentStatus.FAILED:
-            return f"🚨 ExtractorStep failed for Job {deployment.job.id}. Halting branch."
+            return f"🚨 Unable to parse job title or domain for this job post. Please try again."
         else:
             return f"🛸 Extracting company details for Job: {deployment.job.id}"
 

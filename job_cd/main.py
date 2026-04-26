@@ -63,6 +63,9 @@ def build(url: str):
     try:
         deployments = engine.run(payload=payload, profile=default_profile)
 
+        if not deployments or all(d.status == DeploymentStatus.FAILED for d in deployments):
+            return
+
         total_contacts = sum(len(d.outreaches) for d in deployments)
         total_drafted = sum(1 for d in deployments for o in d.outreaches if o.status == DeploymentStatus.DRAFTED)
 
