@@ -1,5 +1,5 @@
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Optional
 from job_cd.enums import DeploymentStatus
 from pydantic import BaseModel, EmailStr, Field, HttpUrl
@@ -28,6 +28,9 @@ class IntakePayload(BaseModel):
     but later on we can add more options like csv, api and so on
     """
     url: Optional[HttpUrl] = None
+    manual_title: Optional[str] = None
+    manual_company: Optional[str] = None
+    manual_domain: Optional[str] = None
 
 
 class Job(BaseModel):
@@ -40,7 +43,7 @@ class Job(BaseModel):
     date_posted: Optional[datetime] = None
     deadline: Optional[datetime] = None
     closed_at: Optional[datetime] = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     salary: Optional[str] = None
     location: Optional[str] = None
     status: str
@@ -97,6 +100,7 @@ class JobDeployment(BaseModel):
     company: Optional[Company] = None
     status: DeploymentStatus = DeploymentStatus.PENDING
     outreaches: list[Outreach] = Field(default_factory=list)
+    payload: Optional[IntakePayload] = None
     
     
     

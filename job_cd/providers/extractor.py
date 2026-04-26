@@ -4,7 +4,7 @@ import os
 import uuid
 import subprocess
 import typer
-from google import genai
+import google.generativeai as genai
 from google.genai import types
 from typing import Optional
 from pydantic import ValidationError

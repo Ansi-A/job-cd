@@ -3,7 +3,7 @@ from job_cd.enums import DeploymentStatus
 import logging
 import uuid
 import requests
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from bs4 import BeautifulSoup
 
 from job_cd.core.interfaces import JobIntakeStrategy
@@ -41,7 +41,7 @@ class SimpleWebIntake(JobIntakeStrategy):
                 job_url=url_str,
                 status=DeploymentStatus.PENDING,
                 job_description=clean_text[:5000],
-                created_at=datetime.now(UTC),
+                created_at=datetime.now(timezone.utc),
             )
 
             return [job]

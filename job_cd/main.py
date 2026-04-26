@@ -1,4 +1,5 @@
 import typer
+from typing import Optional
 from dotenv import load_dotenv
 
 from job_cd.core.dispatcher import Dispatcher
@@ -20,7 +21,12 @@ db = SQLiteDatabaseAdapter()
 
 
 @app.command()
-def build(url: str):
+def build(
+    url: str,
+    title: Optional[str] = typer.Option(None, "--title", help="Manual override for job title"),
+    company: Optional[str] = typer.Option(None, "--company", help="Manual override for company name"),
+    domain: Optional[str] = typer.Option(None, "--domain", help="Manual override for company domain")
+):
     typer.secho(f"\n🚀  Starting Build Pipeline", fg=typer.colors.BLUE, bold=True)
     typer.secho(f"🔗  Target: {url}", fg=typer.colors.WHITE, dim=True)
 
@@ -30,7 +36,7 @@ def build(url: str):
             typer.secho("Aborted.", fg=typer.colors.YELLOW)
             return
     
-    payload = IntakePayload(url=url)
+    payload = IntakePayload(url=url, manual_title=title, manual_company=company, manual_domain=domain)
     cache = LocalCache()
     profile_cache = LocalCache(filename="profiles.json")
     profile_data = profile_cache.get("default")

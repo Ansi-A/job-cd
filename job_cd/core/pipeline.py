@@ -12,7 +12,7 @@ from job_cd.core.models import (
     JobDeployment,
     IntakePayload,
     DeploymentProfile,
-    DeploymentStatus, Outreach
+    DeploymentStatus, Outreach, Company
 )
 from job_cd.utils import get_next_scheduled_time
 
@@ -40,6 +40,7 @@ class JobPipelineEngine:
                 profile=profile,
                 company=None,
                 status=DeploymentStatus.PENDING,
+                payload=payload,
             )
 
             for step in self.pipeline_steps:
@@ -72,16 +73,35 @@ class ExtractorStep(PipelineStep):
 
         logging.info(f"Extracting company details for Job: {deployment.job.id}")
         
-        company = self.extractor.extract_company(deployment.job)
+        # Handle manual overrides
+        if deployment.payload and deployment.payload.manual_title:
+            deployment.job.title = deployment.payload.manual_title
         
-        # Check if company exists and has both domain and job_title
-        if company and company.domain and company.job_title:
+        if deployment.payload and deployment.payload.manual_company and deployment.payload.manual_domain:
+            # Create company manually with overrides
+            company = Company(
+                id=str(uuid.uuid4()),
+                name=deployment.payload.manual_company,
+                domain=deployment.payload.manual_domain,
+                job_title=deployment.job.title
+            )
             deployment.company = company
             deployment.status = DeploymentStatus.EXTRACTED
-            deployment.job.title = company.job_title
         else:
-            logging.error(f"🚨 ExtractorStep failed to parse title/domain for Job {deployment.job.id}.")
-            deployment.status = DeploymentStatus.FAILED
+            # Call extractor for missing fields
+            company = self.extractor.extract_company(deployment.job)
+            
+            # Check if company exists and has both domain and job_title
+            if company and company.domain and company.job_title:
+                # If manual title was provided, ensure it's used
+                if deployment.payload and deployment.payload.manual_title:
+                    company.job_title = deployment.job.title
+                deployment.company = company
+                deployment.status = DeploymentStatus.EXTRACTED
+                deployment.job.title = company.job_title
+            else:
+                logging.error(f"🚨 ExtractorStep failed to parse title/domain for Job {deployment.job.id}.")
+                deployment.status = DeploymentStatus.FAILED
             
         return deployment
     
