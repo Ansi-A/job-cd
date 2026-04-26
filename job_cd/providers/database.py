@@ -95,6 +95,7 @@ class SQLiteDatabaseAdapter(DatabaseStrategy):
     def filter(self,
                status: Optional[DeploymentStatus] = None,
                scheduled_only: bool = False,
+               job_link: Optional[str] = None,
                limit: int = 50,
                order_by: str = "rowid DESC") -> List[JobDeployment]:
         """
@@ -116,6 +117,10 @@ class SQLiteDatabaseAdapter(DatabaseStrategy):
 
         if scheduled_only:
             query += " AND scheduled_at IS NOT NULL"
+
+        if job_link:
+            query += " AND job_link = ?"
+            params.append(job_link)
 
         query += f" ORDER BY {order_by} LIMIT ?"
         params.append(limit)

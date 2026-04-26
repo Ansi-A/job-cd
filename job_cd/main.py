@@ -23,6 +23,12 @@ db = SQLiteDatabaseAdapter()
 def build(url: str):
     typer.secho(f"\n🚀  Starting Build Pipeline", fg=typer.colors.BLUE, bold=True)
     typer.secho(f"🔗  Target: {url}", fg=typer.colors.WHITE, dim=True)
+
+    existing_deployments = db.filter(job_link=url)
+    if existing_deployments:
+        if not typer.confirm("⚠️  A record for this job URL already exists. Do you want to continue adding a new record for this job post?"):
+            typer.secho("Aborted.", fg=typer.colors.YELLOW)
+            return
     
     payload = IntakePayload(url=url)
     cache = LocalCache()

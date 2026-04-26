@@ -31,6 +31,7 @@ class DatabaseStrategy(ABC):
     def filter(self,
                status: Optional[DeploymentStatus] = None,
                scheduled_only: bool = False,
+               job_link: Optional[str] = None,
                limit: int = 500,
                order_by: str = "rowid DESC") -> List[JobDeployment]:
         """
