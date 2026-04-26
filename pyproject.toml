@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "job-cd"
+version = "1.0.0"
+description = "A CI/CD pipeline for job applications."
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Avaya Baniya", email = "baniyaavaya@gmail.com"}
+]
+keywords = ["job-search", "automation", "career", "llm", "gemini", "ci-cd"]
+dependencies = [
+    "python-dotenv",
+    "typer",
+    "pydantic",
+    "pydantic[email]",
+    "requests",
+    "beautifulsoup4",
+    "google-genai",
+]
+
+[project.scripts]
+jobcd = "job_cd.main:app"
