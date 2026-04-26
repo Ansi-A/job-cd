@@ -1,7 +1,6 @@
 .env
 .venv
 .DS_Store
-.env.example
 .env.production
 .env.development
 .idea
